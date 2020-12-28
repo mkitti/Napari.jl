@@ -1,17 +1,18 @@
 # Napari.jl
 
-This project is a Julia language wraper around [Napari](https://github.com/napari/napari).
+This project is a Julia language wrapper around [Napari](https://github.com/napari/napari), a multi-dimensional image viewer for Python.
 
 ## Installation
 
 First, we recommend that you configure [PyCall.jl](https://github.com/JuliaPy/PyCall.jl) and install [Napari](https://github.com/napari/napari) into the Python environment
-used by PyCall.jl. You can try either the `Napari.install_with_pip()` or `Napari.install_with_conda()` methods although these are not tested.
+used by PyCall.jl. To install Napari, you can try either the `Napari.install_with_pip()` or `Napari.install_with_conda()` methods although these are not tested.
 
 This package is currently not in the Julia registry.
 
 ```julia
 using Pkg
 Pkg.add("https://github.com/mkitti/Napari.jl.git")
+using Napari
 Napari.install_with_pip() # If you have not installed Napari yet
 ```
 
@@ -64,33 +65,31 @@ viewer = @namekw napari.view_image( astronaut ) # Adds name = "astronaut" keywor
 @namekw viewer.add_labels( astronaut[:,:,1] .> 100 ) # Adds name = "astronaut[:,:,1] .> 100" keyword argument
 ```
 
-    :image,
-    :points,
-    :labels,
-    :shapes,
-    :surface,
-    :vectors,
-    :tracks
-
 For convenience, this package also provides and exports the following macros.
 
 `@view_*`:
-* `@view_image(expr; kwargs...)` - Equivalent to `napari.view_image(expr; name = string( :(expr) ), kwargs... )`
-* `@view_points(expr; kwargs...)` - Equivalent to `napari.view_points(expr; name = string( :(expr) ), kwargs... )`
-* `@view_labels(expr; kwargs...)` - Equivalent to `napari.view_labels(expr; name = string( :(expr) ), kwargs... )`
-* `@view_shapes(expr; kwargs...)` - Equivalent to `napari.view_shapes(expr; name = string( :(expr) ), kwargs... )`
-* `@view_surface(expr; kwargs...)` - Equivalent to `napari.view_surface(expr; name = string( :(expr) ), kwargs... )`
-* `@view_vectors(expr; kwargs...)` - Equivalent to `napari.view_vectors(expr; name = string( :(expr) ), kwargs... )`
-* `@view_tracks(expr; kwargs...)` - Equivalent to `napari.view_tracks(expr; name = string( :(expr) ), kwargs... )`
+```julia
+@view_image(expr; kwargs...)   # Equivalent to napari.view_image(expr; name = string( :(expr) ), kwargs... )
+@view_points(expr; kwargs...)  # Equivalent to napari.view_points(expr; name = string( :(expr) ), kwargs... )
+@view_labels(expr; kwargs...)  # Equivalent to napari.view_labels(expr; name = string( :(expr) ), kwargs... )
+@view_shapes(expr; kwargs...)  # Equivalent to napari.view_shapes(expr; name = string( :(expr) ), kwargs... )
+@view_surface(expr; kwargs...) # Equivalent to napari.view_surface(expr; name = string( :(expr) ), kwargs... )
+@view_vectors(expr; kwargs...) # Equivalent to napari.view_vectors(expr; name = string( :(expr) ), kwargs... )
+@view_tracks(expr; kwargs...)  # Equivalent to napari.view_tracks(expr; name = string( :(expr) ), kwargs... )
+```
 
 `@add_*`:
-* `@add_image(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_image(expr; kwargs...)`
-* `@add_points(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_points(expr; kwargs...)`
-* `@add_labels(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_labels(expr; kwargs...)`
-* `@add_shapes(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_shapes(expr; kwargs...)`
-* `@add_surface(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_surface(expr; kwargs...)`
-* `@add_vectors(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_vectors(expr; kwargs...)`
-* `@add_tracks(viewer, expr; kwargs...)` - Equvivalent to `viewer.add_tracks(expr; kwargs...)`
+```julia
+@add_image(viewer, expr; kwargs...)   # Equvivalent to `viewer.add_image(expr; kwargs...)
+@add_points(viewer, expr; kwargs...)  # Equvivalent to `viewer.add_points(expr; kwargs...)
+@add_labels(viewer, expr; kwargs...)  # Equvivalent to `viewer.add_labels(expr; kwargs...)
+@add_shapes(viewer, expr; kwargs...)  # Equvivalent to `viewer.add_shapes(expr; kwargs...)
+@add_surface(viewer, expr; kwargs...) # Equvivalent to `viewer.add_surface(expr; kwargs...)
+@add_vectors(viewer, expr; kwargs...) # Equvivalent to `viewer.add_vectors(expr; kwargs...)
+@add_tracks(viewer, expr; kwargs...)  # Equvivalent to `viewer.add_tracks(expr; kwargs...)
+```
+
+You can then use these macros to view images in Napari, and the expressions will be used as labels for the image layers.
 
 ```julia
 using PyCall
@@ -110,3 +109,7 @@ be initialized manually.
 ## History
 
 It is based around an earlier script, `napari.jl`, by Mark Kittisopikul that was posted as a [gist](https://gist.github.com/mkitti/2f7c5fc3d3f8b0d15dd13f6d67b0e73d) in Janaruy 2020.
+
+## License
+
+This package is licensed under the [3-Clause "Revised" BSD License](https://github.com/mkitti/Napari.jl/blob/main/LICENSE).
