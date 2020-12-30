@@ -28,3 +28,23 @@ end
 # add_vectors( viewer, data, args...; kwargs... ) = napari_ref[].add_vectors( viewer, data, args...; kwargs... )
 # add_tracks(  viewer, data, args...; kwargs... ) = napari_ref[].add_tracks(  viewer, data, args...; kwargs... )
 
+# Place holder modules
+module Layers
+    module Image
+    end
+    module Labels
+    end
+    module Points
+    end
+    module Shapes
+    end
+    module Surface
+    end
+    module Tracks
+    end
+    module Utils
+    end
+    module Vectors
+    end
+end
+
