@@ -28,10 +28,13 @@ end
 # add_vectors( viewer, data, args...; kwargs... ) = napari_ref[].add_vectors( viewer, data, args...; kwargs... )
 # add_tracks(  viewer, data, args...; kwargs... ) = napari_ref[].add_tracks(  viewer, data, args...; kwargs... )
 
-# Place holder modules
+# Place holder modules mirroring upstream
+# I'm not really sure if this is actually going to be useful
 module Layers
-    module Image
-    end
+
+    # module Image
+    include("image.jl")
+
     module Labels
     end
     module Points

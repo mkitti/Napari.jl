@@ -27,7 +27,7 @@ const layers = (
 
 include("layers.jl")
 include("layer_name_macros.jl")
-include("pyconvert.jl")
+include("viewer.jl")
 include("install.jl")
 
 function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
@@ -102,6 +102,7 @@ end
 function astronaut()
     pyimport("skimage.data").astronaut()
 end
+
 
 
 end

@@ -1,13 +1,13 @@
 # Napari.jl
 
-This project is a Julia language wrapper around [Napari](https://github.com/napari/napari), a multi-dimensional image viewer for Python.
+This project is a Julia language wrapper around [Napari](https://github.com/napari/napari), a multi-dimensional image viewer for Python. The project is undergoing rapid development and is at a prerelease stage.
 
 ## Installation
 
 First, we recommend that you configure [PyCall.jl](https://github.com/JuliaPy/PyCall.jl) and install [Napari](https://github.com/napari/napari) into the Python environment
 used by PyCall.jl. To install Napari, you can try either the `Napari.install_with_pip()` or `Napari.install_with_conda()` methods although these are not tested.
 
-This package is currently not in the Julia registry.
+This package is currently not in the Julia registry. To install, add it directly from Github as follows:
 
 ```julia
 using Pkg
