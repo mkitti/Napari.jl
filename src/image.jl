@@ -96,8 +96,6 @@ function add_image(viewer, img::ImageMeta, args...; kwargs...)
         kwdict[:metadata] = properties(img)
     end
 
-    @info "Hello"
-
     add_image(viewer, arraydata(img) , args... ; kwdict...)
 end
 
