@@ -100,6 +100,26 @@ viewer = @view_image(astronaut) # The macros can be used with parentheses
 @add_labels viewer astronaut[:,:,1] .> 100 # They macros can also be used without parentheses and commas
 ```
 
+## Overloading interfaces for types
+
+The macros above actually call `Napari.view_[layer](data, ... )` and `Napari.add_[layer](viewer, data, ...)`.
+
+These functions may be overloaded for specific types of data and to take advantage of multiple dispatch.
+
+Currently, this package overloads `Napari.view_image` for the following types:
+* `ImageMeta` from `ImageMetadata`
+* `AxisArray{Gray{T}}` from AxisArrays
+* `AbstractArray{C} where C <: Colorant{T,3} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: Colorant{T,4} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: Colorant{T,1} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: TransparentColor{Gray}` from `Images`
+
+For other Julia types, you can overload these methods by importing the appropriate methods:
+
+```julia
+import Napari: view_image, add_image
+```
+
 ## Advanced
 
 This package defaults to using pyqt5 and uses `PyCall.pygui_start(:qt5)` to initialize the the QT event loop.
