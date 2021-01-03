@@ -7,7 +7,7 @@ using PyCall
 using Conda
 
 # Napari module, use this instead of the napari global
-#const napari_ref = Ref{PyObject}()
+const napari = PyNULL()
 const napari_ref = Ref{PyObject}()
 # PyQt5.QtWidgets.QApplication
 const qapp_obj_ref = Ref{PyObject}()
@@ -39,9 +39,9 @@ function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
         #napari_ref[] = pyimport("napari")
         napari_ref[] = pyimport_conda("napari", "napari", "conda-forge")
 
-        # The global is only meant to be used for convenience at the REPL
-        # use napari_ref[] internall and otherwise
-        global napari = napari_ref[]
+        # The global napari is only meant to be used for convenience at the REPL
+        # use napari_ref[] internally and otherwise
+        copy!(napari,napari_ref[])
 
         @info "napari version" version = napari_ref[].__version__
         @info dirname(napari.__file__)
