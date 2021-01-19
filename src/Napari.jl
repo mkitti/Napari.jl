@@ -7,12 +7,27 @@ using PyCall
 using Conda
 
 # Napari module, use this instead of the napari global
+const napari = PyNULL()
 const napari_ref = Ref{PyObject}()
 # PyQt5.QtWidgets.QApplication
 const qapp_obj_ref = Ref{PyObject}()
 
+const layers = (
+    :image,
+    :points,
+    :labels,
+    :shapes,
+    :surface,
+    :vectors,
+    :tracks
+)
+# We want to precompile the layer commands, so we declare this statically
+# but the above constant should be effectively the same as below
+# const layers = Symbol.( (napari_ref[].layers.NAMES...,) )
+
+include("layers.jl")
 include("layer_name_macros.jl")
-include("pyconvert.jl")
+include("viewer.jl")
 include("install.jl")
 
 function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
@@ -20,8 +35,14 @@ function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
         # We need to coordinate between PyCall and Napari
         # https://github.com/JuliaPy/PyCall.jl/blob/master/src/gui.jl#L140
         # https://github.com/napari/napari/blob/master/napari/_qt/event_loop.py
-        napari_ref[] = pyimport("napari")
-        global napari = napari_ref[]
+
+        #napari_ref[] = pyimport("napari")
+        napari_ref[] = pyimport_conda("napari", "napari", "conda-forge")
+
+        # The global napari is only meant to be used for convenience at the REPL
+        # use napari_ref[] internally and otherwise
+        copy!(napari,napari_ref[])
+
         @info "napari version" version = napari_ref[].__version__
         @info dirname(napari.__file__)
         if qt
@@ -43,10 +64,6 @@ function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
                      You may need to initailize qtpy.QtWidgets.QApplication.
                      See environmental variable NAPARI_JL_NOQT"""
         end
-        if !isinteractive()
-            # Run event loop at end so application does not immediately exit
-            # atexit( () -> qapp_obj_ref[].exec() )
-        end
     catch err
         @warn """Napari.jl has failed to import qtpy and napari from Python.
                  Please make sure these are installed. See the
@@ -56,6 +73,10 @@ function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
         @debug err
         rethrow(err)
     end
+end
+
+function install_at_exit_handler()
+    atexit( () -> qapp_obj_ref[] )
 end
 
 function startup_logo(time = 1)
@@ -81,6 +102,7 @@ end
 function astronaut()
     pyimport("skimage.data").astronaut()
 end
+
 
 
 end
