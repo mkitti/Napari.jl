@@ -1,13 +1,13 @@
 # Napari.jl
 
-This project is a Julia language wrapper around [Napari](https://github.com/napari/napari), a multi-dimensional image viewer for Python.
+This project is a Julia language wrapper around [Napari](https://github.com/napari/napari), a multi-dimensional image viewer for Python. The project is undergoing rapid development and is at a prerelease stage.
 
 ## Installation
 
 First, we recommend that you configure [PyCall.jl](https://github.com/JuliaPy/PyCall.jl) and install [Napari](https://github.com/napari/napari) into the Python environment
 used by PyCall.jl. To install Napari, you can try either the `Napari.install_with_pip()` or `Napari.install_with_conda()` methods although these are not tested.
 
-This package is currently not in the Julia registry.
+This package is currently not in the Julia registry. To install, add it directly from Github as follows:
 
 ```julia
 using Pkg
@@ -98,6 +98,26 @@ astronaut = pyimport("skimage.data").astronaut()
 using Napari
 viewer = @view_image(astronaut) # The macros can be used with parentheses
 @add_labels viewer astronaut[:,:,1] .> 100 # They macros can also be used without parentheses and commas
+```
+
+## Overloading interfaces for types
+
+The macros above actually call `Napari.view_[layer](data, ... )` and `Napari.add_[layer](viewer, data, ...)`.
+
+These functions may be overloaded for specific types of data and to take advantage of multiple dispatch.
+
+Currently, this package overloads `Napari.view_image` for the following types:
+* `ImageMeta` from `ImageMetadata`
+* `AxisArray{Gray{T}}` from AxisArrays
+* `AbstractArray{C} where C <: Colorant{T,3} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: Colorant{T,4} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: Colorant{T,1} where T <: FixedPoint` from `Images`
+* `AbstractArray{C} where C <: TransparentColor{Gray}` from `Images`
+
+For other Julia types, you can overload these methods by importing the appropriate methods:
+
+```julia
+import Napari: view_image, add_image
 ```
 
 ## Advanced
