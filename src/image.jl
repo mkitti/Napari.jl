@@ -7,9 +7,14 @@ module Image
 
 # The main reason to have this in a discrete module is really to contain the imports
 # until we can be more explicit about what we are importing
+# This module will be significantly revised after PR 876 in PyCall is merged.
+# Many of the operations below to be conducted without copying after that PR.
+# https://github.com/JuliaPy/PyCall.jl/pull/876 
 using Images, FixedPointNumbers, PyCall, AxisArrays, ImageMetadata
 
-import Napari: napari_ref, view_image, add_image
+import Napari: napari, view_image, add_image
+
+# This module 
 
 view_image(A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,3} where T <: FixedPoint{F} where F =
     view_image(primitive_array(A), args...; kwargs...)

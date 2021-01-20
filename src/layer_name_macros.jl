@@ -49,7 +49,7 @@ end
 
 #= 
 macro view_image(image, kwargs...)
-    call_with_name_keyword( :( napari_ref[].view_image ),
+    call_with_name_keyword( :( napari.view_image ),
                            image, kwargs...)
 end
  =#
@@ -58,7 +58,7 @@ end
 # see napari.layers.NAMES
 for layer in layers
     local macro_name = Symbol("view_", layer)
-    # local view = Expr( :. , :(napari_ref[]), QuoteNode( macro_name ) )
+    # local view = Expr( :. , :(napari), QuoteNode( macro_name ) )
     local view = QuoteNode( macro_name )
     eval( Expr( :export, Symbol('@', macro_name) ) )
     @eval begin

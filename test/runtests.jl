@@ -14,7 +14,7 @@ catch err
     rethrow(err)
 end
 
-#@testset "Napari.jl" begin
+@testset "Napari.jl" begin
     @testset "PyCall and Python environment" begin
        @test py"""
        from skimage import data
@@ -79,7 +79,7 @@ end
             @test viewer.add_image( testimage(f), name=f) isa PyObject
         end
     end
-#end
+end
 
 function view_all_test_images()
     viewer = napari.Viewer()

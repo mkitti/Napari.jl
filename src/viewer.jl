@@ -3,7 +3,7 @@
 
     Call napari.Viewer(args...; kwargs...)
 """
-Viewer(args...; kwargs...) = napari_ref[].Viewer(args...; kwargs...)
+Viewer(args...; kwargs...) = napari.Viewer(args...; kwargs...)
 
 """
     Viewer(f::Function, args...; kwargs...)
