@@ -29,19 +29,25 @@ include("layer_name_macros.jl")
 include("viewer.jl")
 include("install.jl")
 
-function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
+function __init__(;
+    use_qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ),
+    use_conda = parse(Bool, get(ENV, "NAPARI_JL_USE_CONDA", "true") )
+)
     try
         # We need to coordinate between PyCall and Napari
         # https://github.com/JuliaPy/PyCall.jl/blob/master/src/gui.jl#L140
         # https://github.com/napari/napari/blob/master/napari/_qt/event_loop.py
 
-        #napari = pyimport("napari")
-        napari_local = pyimport_conda("napari", "napari", "conda-forge")
+        if use_conda
+            napari_local = pyimport_conda("napari", "napari", "conda-forge")
+        else
+            napari_local = pyimport("napari")
+        end
         copy!(napari,napari_local)
 
         @info "napari version" version = napari.__version__
         @info dirname(napari.__file__)
-        if qt
+        if use_qt
             pygui_start(:qt5)
             # Needed to kickstart Qt5 for some reason
             QApplication = pyimport("qtpy.QtWidgets").QApplication
@@ -59,7 +65,7 @@ function __init__(qt = parse(Bool, get( ENV, "NAPARI_JL_QT", "true") ) )
         else
             @warn """pygui_start(:qt5) not run. Start the event loop manually.
                      You may need to initailize qtpy.QtWidgets.QApplication.
-                     See environmental variable NAPARI_JL_NOQT"""
+                     See environmental variable NAPARI_JL_QT"""
         end
     catch err
         @warn """Napari.jl has failed to import qtpy and napari from Python.
@@ -99,7 +105,5 @@ end
 function astronaut()
     pyimport("skimage.data").astronaut()
 end
-
-
 
 end

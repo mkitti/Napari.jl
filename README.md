@@ -11,9 +11,10 @@ This package is currently not in the Julia registry. To install, add it directly
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/mkitti/Napari.jl.git")
-using Napari
-Napari.install_with_pip() # If you have not installed Napari yet
+Pkg.add("Napari")
+# Alternatively, use the following to get the development version
+# Pkg.add("https://github.com/mkitti/Napari.jl.git")
+using Napari # Will use pyimport_conda("Napari") unless parse(Bool, ENV["NAPARI_JL_USE_CONDA"]) == false
 ```
 
 ## Quick Start
@@ -119,6 +120,10 @@ For other Julia types, you can overload these methods by importing the appropria
 ```julia
 import Napari: view_image, add_image
 ```
+
+## Compatability with Napari
+
+This package has been tested against Napari release versions 0.3.9 and 0.4.6.
 
 ## Advanced
 
