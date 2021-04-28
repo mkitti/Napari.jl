@@ -18,7 +18,7 @@ TestImages = "5e47fb64-e119-507b-a336-dd2b206d9990"
 
 [compat]
 AxisArrays = "0.4"
-ColorTypes = "0.10.9"
+ColorTypes = "0.10.9, 0.11"
 Conda = "1.5.0"
 FixedPointNumbers = "0.8.4"
 ImageIO = "0.4"
