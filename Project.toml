@@ -1,7 +1,7 @@
 name = "Napari"
 uuid = "ed46c112-542a-4e7e-ab0f-e39321fab6f0"
 authors = ["Mark Kittisopikul <markkitt@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 AxisArrays = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
