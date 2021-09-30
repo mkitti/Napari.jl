@@ -62,11 +62,11 @@ end
             @info f
             @test viewer.add_image( testimage(f), name=f) isa PyObject
         end
-        for f in TestImages.remotefiles[11:15]
+        for f in TestImages.remotefiles[11:20]
             @info f
             @test viewer.add_image( testimage(f), name=f) isa PyObject
         end
-        for f in TestImages.remotefiles[vcat(21,23:27,29:30)]
+        for f in TestImages.remotefiles[21:30]
             @info f
             @test viewer.add_image( testimage(f), name=f) isa PyObject
         end
@@ -78,6 +78,8 @@ end
             @info f
             @test viewer.add_image( testimage(f), name=f) isa PyObject
         end
+        @info "Shepp Logan"
+        @test viewer.add_image( TestImages.shepp_logan(512, 512) ) isa PyObject
     end
 end
 
