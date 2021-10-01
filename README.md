@@ -109,11 +109,15 @@ These functions may be overloaded for specific types of data and to take advanta
 
 Currently, this package overloads `Napari.view_image` for the following types:
 * `ImageMeta` from `ImageMetadata`
-* `AxisArray{Gray{T}}` from AxisArrays
+* `AxisArray` from AxisArrays
 * `AbstractArray{C} where C <: Colorant{T,3} where T <: FixedPoint` from `Images`
 * `AbstractArray{C} where C <: Colorant{T,4} where T <: FixedPoint` from `Images`
 * `AbstractArray{C} where C <: Colorant{T,1} where T <: FixedPoint` from `Images`
 * `AbstractArray{C} where C <: TransparentColor{Gray}` from `Images`
+* `PermutedDimsArray`, wrapped using NumPyArrays
+* `SubArray`, wrapped using NumPyArrays
+* `Base.ReshapedArray`, wrapped using NumPyArrays
+* `Base.ReinterpretedArray`, wrapped using NumPyArrays
 
 For other Julia types, you can overload these methods by importing the appropriate methods:
 
