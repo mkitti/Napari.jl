@@ -18,5 +18,5 @@ end
 """
 function install_with_conda()
     # https://anaconda.org/conda-forge/napari
-    Conda.add("napari"; channel = "conda-forge")
+    Conda.add(["pyqt", "napari"]; channel = "conda-forge")
 end

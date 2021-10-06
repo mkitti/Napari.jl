@@ -7,10 +7,10 @@ module Image
 
 # The main reason to have this in a discrete module is really to contain the imports
 # until we can be more explicit about what we are importing
-# This module will be significantly revised after PR 876 in PyCall is merged.
-# Many of the operations below to be conducted without copying after that PR.
+#
+# In lieu of PR 876 in PyCall, we use NumPyArrays, to perform no-copy conversions into Python friendly arrays
 # https://github.com/JuliaPy/PyCall.jl/pull/876 
-using Images, FixedPointNumbers, PyCall, AxisArrays, ImageMetadata
+using Images, FixedPointNumbers, PyCall, AxisArrays, ImageMetadata, NumPyArrays
 
 import Napari: napari, view_image, add_image
 
@@ -24,8 +24,8 @@ add_image(viewer, A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T
 function primitive_array(A::AbstractArray{C}) where C <: Colorant{T,3} where T <: FixedPoint{F} where F
     # 1. Grab channel view which gets us Array{T,3}. This is a Base.ReinterpretArray
     # 2. Convert to Array{F,3}, still a Base.ReinterpretArray
-    # 3. Permute dims such that the channels are the last dimension, copy
-    permutedims( reinterpret(F,channelview(A)), (2,3,1)) 
+    # 3. Permute dims such that the channels are the last dimension, without copying
+    PermutedDimsArray( reinterpret(F,channelview(A)), (2,3,1))
 end
 
 view_image(A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,4} where T <: FixedPoint{F} where F =
@@ -36,19 +36,22 @@ add_image(viewer, A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T
 function primitive_array(A::AbstractArray{C}) where C <: Colorant{T,4} where T <: FixedPoint{F} where F
     # 1. Grab channel view which gets us Array{T,3}. This is a Base.ReinterpretArray
     # 2. Convert to Array{F,3}, still a Base.ReinterpretArray
-    # 3. Permute dims such that the channels are the last dimension, copy
-    permutedims( reinterpret(F,channelview(A)), (2,3,1)) 
+    # 3. Permute dims such that the channels are the last dimension, without copying
+    PermutedDimsArray( reinterpret(F,channelview(A)), (2,3,1))
 end
 
-view_image(A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,1} where T <: FixedPoint{F} where F =
+view_image(A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,1} where T =
     view_image(primitive_array(A), args...; kwargs...)
-add_image(viewer, A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,1} where T <: FixedPoint{F} where F =
+add_image(viewer, A::AbstractArray{C}, args...; kwargs...) where C <: Colorant{T,1} where T = 
     add_image(viewer, primitive_array(A), args...; kwargs...)
 
 function primitive_array(A::AbstractArray{C}) where C <: Colorant{T,1} where T <: FixedPoint{F} where F
     # 1. Grab channel view which gets us Array{T,3}. This is a Base.ReinterpretArray
     # 2. Convert to Array{F,3}, still a Base.ReinterpretArray
-    copy( reinterpret(F,channelview(A)) )
+    reinterpret(F,channelview(A))
+end
+function primitive_array(A::AbstractArray{C}) where C <: Colorant{F, 1} where F <: AbstractFloat
+    reinterpret(F,channelview(A))
 end
 
 view_image(A::AbstractArray{C}, args...; kwargs...) where C <: TransparentColor{Gray{F}, F} where F =
@@ -113,12 +116,12 @@ end
         order = gives axes in order of :time, :channel, :y, :x
         axis_labels = axisnames(img)
 """
-function view_image(img::AxisArray{Gray{T},N}, args...; kwargs...) where T <: FixedPoint{F} where {F,N}
+function view_image(img::AxisArray, args...; kwargs...)
     A = primitive_array( img )
     dims = collect( 1:ndims( img ) )
     dim_names = axisnames(img)
-    time_dim = findfirst(==(:time), dim_names)
-    channel_dim = findfirst(==(:channel), dim_names)
+    time_dim = findfirst(in((:time, :T)), dim_names)
+    channel_dim = findfirst(in((:channel, :C)), dim_names)
     kwdict = Dict{Symbol,Any}(kwargs)
     # If we have an image with (:y, :x, :channel, :time)
     # transform it to (:time, :channel, :y, :x)
@@ -164,12 +167,12 @@ end
     Unlike view_image(viewer, img::AxisArrays{Gray{T},...}) it does
     not change the order or add axis_labels.
 """
-function add_image(viewer, img::AxisArray{Gray{T},N}, args...; kwargs...) where T <: FixedPoint{F} where {F,N}
+function add_image(viewer, img::AxisArray, args...; kwargs...)
     A = primitive_array( img )
     dims = collect( 1:ndims( img ) )
     dim_names = axisnames(img)
-    time_dim = findfirst(==(:time), dim_names)
-    channel_dim = findfirst(==(:channel), dim_names)
+    time_dim = findfirst(in((:time, :T)), dim_names)
+    channel_dim = findfirst(in((:channel, :C)), dim_names)
     kwdict = Dict{Symbol,Any}(kwargs)
     # If we have an image with (:y, :x, :channel, :time)
     # transform it to (:time, :channel, :y, :x)
@@ -186,7 +189,7 @@ function add_image(viewer, img::AxisArray{Gray{T},N}, args...; kwargs...) where 
         pushfirst!(dims, time_dim)
         # We permute the array since we are adding to an existing viewer
         @info "Permuting Dims"
-        A = permutedims(A, dims)
+        A = PermutedDimsArray(A, dims)
     else
         # No time axis found
         if !isnothing(channel_dim)
@@ -202,7 +205,21 @@ function add_image(viewer, img::AxisArray{Gray{T},N}, args...; kwargs...) where 
 end
 
 function primitive_array(A::AxisArray{Gray{T},N}) where T <: FixedPoint{F} where {F,N}
-    copy( reinterpret(F, A) )
+    reinterpret(F, arraydata(A))
 end
+function primitive_array(A::AxisArray{T}) where T
+    reinterpret(T, arraydata(A))
+end
+
+# Use NumPyArray for types with strides and a parent
+
+view_image(img::PermutedDimsArray, args...; kwargs...) = view_image(NumPyArray(img), args...; kwargs...)
+add_image(viewer, img::PermutedDimsArray, args...; kwargs...) = add_image(viewer, NumPyArray(img), args...; kwargs...)
+view_image(img::SubArray, args...; kwargs...) = view_image(NumPyArray(img), args...; kwargs...)
+add_image(viewer, img::SubArray, args...; kwargs...) = add_image(viewer, NumPyArray(img), args...; kwargs...)
+view_image(img::Base.ReinterpretArray, args...; kwargs...) = view_image(NumPyArray(img), args...; kwargs...)
+add_image(viewer, img::Base.ReinterpretArray, args...; kwargs...) = add_image(viewer, NumPyArray(img), args...; kwargs...)
+view_image(img::Base.ReshapedArray, args...; kwargs...) = view_image(NumPyArray(img), args...; kwargs...)
+add_image(viewer, img::Base.ReshapedArray, args...; kwargs...) = add_image(viewer, NumPyArray(img), args...; kwargs...)
 
 end # PyConvert module end
